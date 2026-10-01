@@ -1,0 +1,10 @@
+# Parámetros: n m n_gen tam_pob. Modificar los valores según se considere oportuno.
+# 500 200 100 50
+# 1000 400 200 100
+# 1500 600 300 150
+# 2000 800 400 200
+100 40 20 10
+#1000 400 200 100
+
+# PARA EL EJERCICIO 1 PONER VALORES SUPER BAJOS AQUÍ Y LUEGO EN EL MAKEFILE PONER valgrind --tool=memcheck --leak-check=yes delante del objetivo de ejecución.
+
