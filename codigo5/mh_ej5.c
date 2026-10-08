@@ -117,8 +117,6 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 		}
 		
 		// recalcula el fitness del individuo
-		// static: cada iteracion solo escribe en su individuo y todas cuestan lo mismo, m(m-1)/2 sumas
-		#pragma omp parallel for schedule(static)
 		for(i = 0; i < tam_pob; i++) {
 			fitness(d, poblacion[i], n, m);
 		}
@@ -238,10 +236,16 @@ void fitness(const double *d, Individuo *individuo, int n, int m)
 {
 	// Determina la calidad del individuo calculando la suma de la distancia entre cada par de enteros
 	double suma = 0.0;
+	int a, b;
 
+	// Compartidas: d, individuo, n, m (solo lectura)
+	// Privadas: a (indice del bucle paralelizado, privada automaticamente) y b
+	// Reduccion: cada hilo acumula en una copia privada de suma inicializada a 0
+	// y al terminar el bucle las copias se suman sobre la variable original
+	#pragma omp parallel for default(none) shared(d, individuo, n, m) private(b) reduction(+:suma)
 	// cada par (a, b) con a < b se suma una sola vez
-	for (int a = 0; a < m - 1; a++) {
-		for (int b = a + 1; b < m; b++) {
+	for (a = 0; a < m - 1; a++) {
+		for (b = a + 1; b < m; b++) {
 			suma += distancia_ij(d, individuo->array_int[a], individuo->array_int[b], n);
 		}
 	}
